@@ -1,0 +1,55 @@
+version: '3.1'
+
+services:
+
+  anep_pgsql:
+  #  build:
+  #    context: ./anep_pgsql
+  #    dockerfile: Dockerfile
+    image: spymovil/anep_pgsql:latest
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pexco599
+      POSTGRES_DB: bd_anep
+    volumes:
+      - ./datos:/var/lib/postgresql/data
+
+  anep_api:
+    build:
+      context: ./anep_api
+      dockerfile: Dockerfile
+    image: spymovil/anep_api:latest
+    ports:
+      - 5022:5022
+    restart: always
+    depends_on:
+      - anep_pgsql
+    environment:
+      MAX_LINES: 5
+      PGSQL_HOST: anep_pgsql
+      PGSQL_PORT: 5432
+      PGSQL_USER: admin
+      PGSQL_PASSWD: pexco599
+      PGSQL_BD: bd_anep
+
+  anep_dataloader:
+    build:
+      context: ./anep_dataloader
+      dockerfile: Dockerfile
+    image: spymovil/anep_dataloader:latest
+    restart: always
+    depends_on:
+      - anep_pgsql
+    environment:
+      PGSQL_HOST: anep_pgsql
+      PGSQL_PORT: 5432
+      PGSQL_USER: admin
+      PGSQL_PASSWD: pexco599
+      PGSQL_BD: bd_anep
+      APIDATOS_HOST: '192.168.0.8'
+      APIDATOS_PORT: 5300
+      SLEEP_TIME: 60
+   
