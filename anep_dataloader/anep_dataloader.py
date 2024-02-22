@@ -22,9 +22,10 @@ APIDATOS_HOST = os.environ.get('APIDATOS_HOST','192.168.0.8')
 APIDATOS_PORT = os.environ.get('APIDATOS_PORT','5300')
 APIDATOS_USERKEY = "BIP55C97EKB1FCOGHBQQ"
 
-VERSION = 'R001 @ 2023-11-21'
+VERSION = 'R002 @ 2024-02-21'
+# Agrego en la lista de ID el equipo de VINIEDOS
 
-VALID_IDS = ['ANEP001','ANEP002']
+VALID_IDS = ['ANEP001','ANEP002', 'VTH01']
 
 def clt_C_handler(signum, frame):
     sys.exit(0)
@@ -92,14 +93,15 @@ def insert_data( boundle_list ):
         #print(line)
         fechadata,fechasys,dlgid,tag,value = line
         try:
-            py_fechadata = datetime.datetime.strptime(fechadata,'%m/%d/%Y, %H:%M:%S')
-            py_fechasys = datetime.datetime.strptime(fechasys,'%m/%d/%Y, %H:%M:%S')
+            py_fechadata = dt.datetime.strptime(fechadata,'%m/%d/%Y, %H:%M:%S')
+            py_fechasys = dt.datetime.strptime(fechasys,'%m/%d/%Y, %H:%M:%S')
         except ValueError as err:
             print(f"ERROR de conversion de fecha: {err}")
             continue
         #
         dataline = Datos(fechadata=py_fechadata, fechasys=py_fechasys, equipo=dlgid, tag=tag, valor=value)
         session.add(dataline)
+        #print(f"Dataline: fechadata={py_fechadata}, fechasys={py_fechasys}, equipo={dlgid}, tag={tag}, valor={value}")
     session.commit()
 
     elapsed = (time.time() - start_time)

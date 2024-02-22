@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 PGSQL_HOST = os.environ.get('PGSQL_HOST','192.168.0.18')
+#PGSQL_HOST = os.environ.get('PGSQL_HOST','127.0.0.1')
 PGSQL_PORT = os.environ.get('PGSQL_PORT', '5433')
 PGSQL_USER = os.environ.get('PGSQL_USER', 'admin')
 PGSQL_PASSWD = os.environ.get('PGSQL_PASSWD','pexco599')

@@ -1,4 +1,5 @@
-#!/home/pablo/Spymovil/python/proyectos/APIANEP/venv/bin/python3
+#!/home/pablo/Spymovil/python/proyectos/APICOMMSV3/venv/bin/python3
+# #!/home/pablo/Spymovil/python/proyectos/APIANEP/venv/bin/python3
 """
 API para proveer datos del prototipo de ANEP a QLICK.
 Generamos 2 entry point:
@@ -23,7 +24,7 @@ import datetime as dt
 import db
 from dbmodels import Datos, ControlAcceso
 
-MAX_LINES = os.environ.get('MAX_LINES','5')
+MAX_LINES = os.environ.get('MAX_LINES','100')
 
 API_VERSION = 'R001 @ 2023-11-27'
 
@@ -32,15 +33,15 @@ api = Api(app)
 auth = HTTPBasicAuth()
 
 USER_DATA = {
-    "QLICK": "SuperSecretPwd"
+    "QLICK": "Pexco599",
+    "PABLO": "Pexco123"
 }
 
 @auth.verify_password
 def verify_password(username, password):
-    #if not (username and password):
-    if username not in USER_DATA:
+    if not (username and password):
         return False
-    return True
+    return USER_DATA.get(username) == password
 
 class Ping(Resource):
     '''
@@ -88,18 +89,25 @@ class Download(Resource):
         #
         access_rcd = access_rows[0]
         last_row = access_rcd.last_row
-        #print(f"DEBUG: Last Row={last_row}")
+        print(f"DEBUG: Last Row={last_row}")
         # Consulto la BD
         datos_rows = db.session.query(Datos).filter(Datos.id > last_row).limit(MAX_LINES).all()
-        # Armo el CSV
+        # Armo el CSV. Puede no tener lineas ( vacio )
         csv_data = ""
+        nro_lines = 0
         for rcd in datos_rows:
             csv_data += f"{rcd}\n"
+            nro_lines += 1
         #
         # Actualizo el ultimo registro
-        last_read_row = datos_rows[-1].id
-        #print(f"DEBUG last_read_row={last_read_row}")
-        access_rcd.last_row = last_read_row
+        if nro_lines > 0:
+            print(f"DEBUG nro_lines={nro_lines}")
+            print(f"DEBUG last_line={datos_rows[-1]}")
+            last_read_row = datos_rows[-1].id
+            print(f"DEBUG last_read_row={last_read_row}")
+            access_rcd.last_row = last_read_row
+        else:
+            print('No lines for read')
         db.session.commit()
         #
         response = Response(csv_data, content_type="text/csv")
